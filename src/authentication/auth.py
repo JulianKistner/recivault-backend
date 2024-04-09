@@ -53,8 +53,6 @@ async def get_user_info(payload: dict = Depends(get_payload)) -> User:
         return User(
             id=payload.get("sub"),
             username=payload.get("preferred_username"),
-            email=payload.get("email"),
-            name=payload.get("given_name"),
             realm_roles=payload.get("realm_access", {}).get("roles", []),
             client_roles=payload.get("realm_access", {}).get("roles", [])
         )
