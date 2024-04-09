@@ -26,7 +26,7 @@ FA_APP_UUID: str = str(uuid.uuid4())
 
 DATABASE_URI = load_env_with_default(
     "DATABASE_URI",
-    "postgresql+psycopg2://recivault:IwsWadT!29@database.recivault.com:5432/recivault",
+    "",
 )
 
 keycloakConfig = authConfiguration(
