@@ -1,0 +1,3 @@
+"""
+	Declares the python package
+"""

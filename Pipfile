@@ -1,0 +1,14 @@
+[packages]
+uvicorn = "*"
+pydantic = "*"
+pytz = "*"
+fastapi = "*"
+starlette = "*"
+sqlalchemy = "*"
+psycopg2 = "*"
+jwt = "*"
+requests = "*"
+python-keycloak = "*"
+
+[requires]
+python_version = "3.12"
