@@ -47,6 +47,7 @@ app.include_router(receipts_router)
 app.include_router(ingredients_router)
 app.include_router(worksteps_router)
 
+
 def init_app():
     """Initialize Fast API Application
 
