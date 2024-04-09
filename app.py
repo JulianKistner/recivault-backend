@@ -69,7 +69,7 @@ def main():
 
     :return:
     """
-    uvicorn.run(init_app(), port=settings.FA_PORT, host=settings.FA_HOST, proxy_headers=True)
+    uvicorn.run(init_app(), port=settings.FA_PORT, proxy_headers=True)
 
 
 if __name__ == "__main__":
