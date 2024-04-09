@@ -8,6 +8,6 @@ RUN pip install pipenv
 RUN pipenv install --deploy --system
 
 # Setze den Befehl zum Ausführen der Anwendung
-CMD ["python", "app.py"]
+CMD ["uvicorn", "app:app", "--proxy-headers", "--host", "0.0.0.0", "--port", "5000"]
 
 EXPOSE 5000

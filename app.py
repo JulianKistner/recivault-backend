@@ -17,6 +17,36 @@ from src.api.router.ingredients import router as ingredients_router
 from src.api.router.worksteps import router as worksteps_router
 
 from src.database.models.receipts import ReceiptDB
+
+app = FastAPI(
+    title=settings.FA_APP_NAME,
+    version=settings.FA_APP_VERSION,
+    docs_url="/api",
+    terms_of_service="not available",
+    openapi_url="/openapi.json",
+    contact={
+        "name": settings.MAINTAINER_NAME,
+        "email": settings.MAINTAINER_EMAIL,
+    },
+    license_info={
+        "name": "No license information",
+        "url": "https://license-url-missing.com",
+    },
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(system_router)
+app.include_router(receipts_router)
+app.include_router(ingredients_router)
+app.include_router(worksteps_router)
+
 def init_app():
     """Initialize Fast API Application
 
@@ -31,36 +61,6 @@ def init_app():
     Recivault Backend API
     """
 
-    app = FastAPI(
-        title=settings.FA_APP_NAME,
-        description=description,
-        version=settings.FA_APP_VERSION,
-        docs_url="/api",
-        terms_of_service="not available",
-        openapi_url="/openapi.json",
-        contact={
-            "name": settings.MAINTAINER_NAME,
-            "email": settings.MAINTAINER_EMAIL,
-        },
-        license_info={
-            "name": "No license information",
-            "url": "https://license-url-missing.com",
-        },
-    )
-
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
-
-    app.include_router(system_router)
-    app.include_router(receipts_router)
-    app.include_router(ingredients_router)
-    app.include_router(worksteps_router)
-
     return app
 
 
@@ -69,7 +69,7 @@ def main():
 
     :return:
     """
-    uvicorn.run(init_app(), port=settings.FA_PORT, proxy_headers=True)
+    uvicorn.run(init_app(), port=settings.FA_PORT)
 
 
 if __name__ == "__main__":
