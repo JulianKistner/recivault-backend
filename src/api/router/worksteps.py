@@ -8,6 +8,7 @@ from starlette.responses import JSONResponse, Response
 from starlette.requests import Request
 from uuid import UUID
 
+from src.api.models.auth import User
 from src.authentication.auth import get_user_info
 from src.database.database import get_db
 from src.service.worksteps import (
@@ -38,16 +39,18 @@ router = APIRouter(prefix="/api",
 def endp_create_workstep(request: Request,
                          db_session: Session = Depends(get_db),
                          body: WorkstepCreate = Body(alias='workstepCreate',
-                                                     title='Workstep Create Model')):
+                                                     title='Workstep Create Model'),
+                         user: User = Depends(get_user_info)):
     """
     # POST Endpoint to create workstep
 
     :param request: General request information
     :param body: API post model
     :param db_session: database session
+    :param user: User information
     :return: API response model
     """
-    return serv_create_workstep(request=request, db_session=db_session, body=body)
+    return serv_create_workstep(request=request, db_session=db_session, body=body, user=user)
 
 
 @router.get(
@@ -62,7 +65,8 @@ def endp_create_workstep(request: Request,
 def endp_get_worksteps_by_receipt(request: Request,
                                   db_session: Session = Depends(get_db),
                                   receipt_id: UUID = Path(alias='receipt_id',
-                                                          title='UUID of receipt')):
+                                                          title='UUID of receipt'),
+                                  user: User = Depends(get_user_info)):
     """
     # GET Endpoint to request all worksteps of a receipt
 
@@ -70,9 +74,10 @@ def endp_get_worksteps_by_receipt(request: Request,
     :param request: General request information
     :param db_session: database session
     :param receipt_id: UUID of receipt
+    :param user: User information
     :return: API response model
     """
-    return serv_get_worksteps_by_receipt(request=request, db_session=db_session, receipt_id=receipt_id)
+    return serv_get_worksteps_by_receipt(request=request, db_session=db_session, receipt_id=receipt_id, user=user)
 
 
 @router.get(
@@ -87,16 +92,18 @@ def endp_get_worksteps_by_receipt(request: Request,
 def endp_get_workstep_by_id(request: Request,
                             db_session: Session = Depends(get_db),
                             uuid: UUID = Path(alias='uuid',
-                                              title='UUID of workstep')):
+                                              title='UUID of workstep'),
+                            user: User = Depends(get_user_info)):
     """
     # GET Endpoint to request a workstep by id
 
     :param uuid: UUID of workstep
     :param request: General request information
     :param db_session: database session
+    :param user: User information
     :return: API response model
     """
-    return serv_get_workstep_by_id(request=request, db_session=db_session, uuid=uuid)
+    return serv_get_workstep_by_id(request=request, db_session=db_session, uuid=uuid, user=user)
 
 
 @router.patch(
@@ -113,7 +120,8 @@ def endp_update_workstep(request: Request,
                          uuid: UUID = Path(alias='uuid',
                                            title='UUID of workstep'),
                          body: WorkstepUpdate = Body(alias='workstepUpdate',
-                                                     title='Workstep Patch Model')):
+                                                     title='Workstep Patch Model'),
+                         user: User = Depends(get_user_info)):
     """
     # PATCH Endpoint to update an existing workstep
 
@@ -121,9 +129,10 @@ def endp_update_workstep(request: Request,
     :param request: General request information
     :param db_session: database session
     :param body: API patch model
+    :param user: User information
     :return: API response model
     """
-    return serv_update_workstep(request=request, db_session=db_session, uuid=uuid, body=body)
+    return serv_update_workstep(request=request, db_session=db_session, uuid=uuid, body=body, user=user)
 
 
 @router.delete(
@@ -137,13 +146,15 @@ def endp_update_workstep(request: Request,
 def endp_delete_workstep(request: Request,
                          db_session: Session = Depends(get_db),
                          uuid: UUID = Path(alias='uuid',
-                                           title='UUID of workstep')):
+                                           title='UUID of workstep'),
+                         user: User = Depends(get_user_info)):
     """
     # DELETE Endpoint to remove workstep
 
     :param uuid: UUID of workstep
     :param request: General request information
     :param db_session: database session
+    :param user: User information
     :return: API response model
     """
-    return serv_delete_workstep(request=request, db_session=db_session, uuid=uuid)
+    return serv_delete_workstep(request=request, db_session=db_session, uuid=uuid, user=user)

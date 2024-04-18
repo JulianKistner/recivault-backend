@@ -1,5 +1,5 @@
 """
-	Receipt endpoints
+	tag crud functions
 """
 from sqlalchemy.orm.session import Session
 from sqlalchemy.exc import SQLAlchemyError, NoResultFound
@@ -11,50 +11,49 @@ from starlette.exceptions import HTTPException
 from typing import List
 from uuid import UUID
 
-from src.database.models.receipts import ReceiptDB
+from src.database.models.tags import TagDB
 from src.database.database import save_entity_to_db, remove_entity_from_db
 
 
-def save_receipt(db_session: Session, db_receipt: ReceiptDB) -> ReceiptDB:
+def save_tag(db_session: Session, db_tag: TagDB) -> TagDB:
     """
-    saves a receipt entity to database
+    saves a new tag
 
     :param db_session: Database session
-    :param db_receipt: Database object    :return:
+    :param db_tag: Database object     :return:
     """
     try:
-        return save_entity_to_db(db_session=db_session, entity=db_receipt)
+        return save_entity_to_db(db_session=db_session, entity=db_tag)
 
     except SQLAlchemyError:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='Database Error')
 
 
-def read_receipts(db_session: Session, user_id: UUID) -> List[ReceiptDB]:
+def read_tags(db_session: Session) -> List[TagDB]:
     """
-    read all receipts in database
+    read all tags in database
 
-    :param db_session: Database Session
-    :param user_id: UUID of user
+    :param db_session: Database session
     :return: List of database objects
     """
+
     try:
-        return db_session.execute(select(ReceiptDB).where(ReceiptDB.user_id == user_id)).scalars().all()
+        return db_session.execute(select(TagDB)).scalars().all()
 
     except SQLAlchemyError:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='Database Error')
 
 
-def read_receipt(db_session: Session, uuid: UUID) -> ReceiptDB:
+def read_tag(db_session: Session, uuid: UUID) -> TagDB:
     """
-    read a receipt by id
+    read a tag by uuid
 
     :param db_session: Database session
-    :param uuid: UUID of receipt
-    :return: Database object
+    :param uuid: UUID of tag
+    :return: Database obejct
     """
     try:
-        return db_session.execute(select(ReceiptDB)
-                                  .where(ReceiptDB.id == uuid)).scalars().one()
+        return db_session.execute(select(TagDB).where(TagDB.id == uuid)).scalars().one()
 
     except NoResultFound:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'Receipt with id "{uuid}" not found')
@@ -62,15 +61,15 @@ def read_receipt(db_session: Session, uuid: UUID) -> ReceiptDB:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='Database Error')
 
 
-def delete_receipt(db_session: Session, db_receipt: ReceiptDB):
+def delete_tag(db_session: Session, db_tag: TagDB):
     """
-    delete a receipt entity from database
+    delete a tag entity from database
 
     :param db_session: Database session
-    :param db_receipt: Database object
+    :param db_tag: Database object
     """
     try:
-        remove_entity_from_db(db_session=db_session, entity=db_receipt)
+        remove_entity_from_db(db_session=db_session, entity=db_tag)
 
-    except SQLAlchemyError:
+    except SQLAlchemyError as err:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='Database Error')
