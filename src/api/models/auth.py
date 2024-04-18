@@ -1,8 +1,9 @@
 #/models.py
 from pydantic import BaseModel, EmailStr
+from uuid import UUID
 
 class User(BaseModel):
-    id: str
+    id: UUID
     username: str
     realm_roles: list
     client_roles: list
