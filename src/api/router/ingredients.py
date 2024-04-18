@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse, Response
 from starlette.requests import Request
 
+from src.api.models.auth import User
 from src.authentication.auth import get_user_info
 from src.database.database import get_db
 from src.service.ingredients import (
@@ -35,16 +36,18 @@ router = APIRouter(prefix="/api",
 def endp_create_ingredient(request: Request,
                            db_session: Session = Depends(get_db),
                            body: IngredientCreate = Body(alias='ingredientCreate',
-                                                         title='Ingredient Post Model')):
+                                                         title='Ingredient Post Model'),
+                           user: User = Depends(get_user_info)):
     """
     # POST Endpoint to create ingredient
 
     :param body: API post model
     :param request: General request information
     :param db_session: database session
+    :param user: User information
     :return: API response model
     """
-    return serv_create_ingredient(request=request, db_session=db_session, body=body)
+    return serv_create_ingredient(request=request, db_session=db_session, body=body, user=user)
 
 
 @router.get(
@@ -59,16 +62,18 @@ def endp_create_ingredient(request: Request,
 def endp_get_ingredient_by_id(request: Request,
                               db_session: Session = Depends(get_db),
                               uuid: UUID = Path(alias='uuid',
-                                                title='UUID of ingredient')):
+                                                title='UUID of ingredient'),
+                              user: User = Depends(get_user_info)):
     """
     # GET Endpoint to fetch ingredient by id
 
     :param uuid: UUID of ingredient
     :param request: General request information
     :param db_session: database session
+    :param user: User information
     :return: API response model
     """
-    return serv_get_ingredient(request=request, db_session=db_session, uuid=uuid)
+    return serv_get_ingredient(request=request, db_session=db_session, uuid=uuid, user=user)
 
 
 @router.get(
@@ -83,7 +88,8 @@ def endp_get_ingredient_by_id(request: Request,
 def endp_get_ingredients_by_receipt(request: Request,
                                     db_session: Session = Depends(get_db),
                                     receipt_id: UUID = Path(alias='receipt_id',
-                                                            title='UUID of receipt')
+                                                            title='UUID of receipt'),
+                                    user: User = Depends(get_user_info)
                                     ):
     """
     GET Endpoint to fetch ingredient by receipt
@@ -91,9 +97,10 @@ def endp_get_ingredients_by_receipt(request: Request,
     :param receipt_id: UUID of receipt
     :param request: General request information
     :param db_session: database session
+    :param user: User information
     :return: API response model
     """
-    return serv_get_ingredients_by_receipt(request=request, db_session=db_session, receipt_id=receipt_id)
+    return serv_get_ingredients_by_receipt(request=request, db_session=db_session, receipt_id=receipt_id, user=user)
 
 
 @router.patch(
@@ -110,7 +117,8 @@ def endp_update_ingredient(request: Request,
                            uuid: UUID = Path(alias='uuid',
                                              title='UUID of ingredient'),
                            body: IngredientUpdate = Body(alias='ingredientUpdate',
-                                                         title='Ingredient Patch Model')):
+                                                         title='Ingredient Patch Model'),
+                           user: User = Depends(get_user_info)):
     """
     PATCH Endpoint to update ingredient
 
@@ -118,9 +126,10 @@ def endp_update_ingredient(request: Request,
     :param uuid: UUID of ingredient
     :param request: General request information
     :param db_session: database session
+    :param user: User information
     :return: API response model
     """
-    return serv_update_ingredient(request=request, db_session=db_session, uuid=uuid, body=body)
+    return serv_update_ingredient(request=request, db_session=db_session, uuid=uuid, body=body, user=user)
 
 
 @router.delete(
@@ -134,13 +143,15 @@ def endp_update_ingredient(request: Request,
 def endp_delete_ingredient(request: Request,
                            db_session: Session = Depends(get_db),
                            uuid: UUID = Path(alias='uuid',
-                                             title='UUID of ingredient')):
+                                             title='UUID of ingredient'),
+                           user: User = Depends(get_user_info)):
     """
     DELETE Endpoint to remove ingredient
 
     :param uuid: UUID of ingredient
     :param request: General request information
     :param db_session: database session
+    :param user: User information
     :return: API response model
     """
-    return serv_delete_ingredient(request=request, db_session=db_session, uuid=uuid)
+    return serv_delete_ingredient(request=request, db_session=db_session, uuid=uuid, user=user)

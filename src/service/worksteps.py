@@ -11,6 +11,7 @@ from typing import List
 from starlette.exceptions import HTTPException
 from uuid import UUID
 
+from src.api.models.auth import User
 from src.api.models.worksteps import (WorkstepResponse,
                                       WorkstepCreate,
                                       WorkstepUpdate,
@@ -25,13 +26,15 @@ from src.crud.receipts import read_receipt
 
 def serv_create_workstep(request: Request,
                          db_session: Session,
-                         body: WorkstepCreate):
+                         body: WorkstepCreate,
+                         user: User):
     """
     service to create a workstep
 
     :param body: API post model
     :param request: General request information
     :param db_session: Database session
+    :param user: User information
     :return: API response model
     """
     try:
@@ -39,6 +42,8 @@ def serv_create_workstep(request: Request,
         new_order_number: int = len(db_worksteps) + 1
 
         db_receipt: ReceiptDB = read_receipt(db_session=db_session, uuid=body.receipt_id)
+        if not db_receipt.id == user.id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='User is not owner of the receipt')
 
         db_workstep: WorkstepDB = WorkstepDB(**body.dict(exclude={'receipt_id',
                                                                   'order_number'}),
@@ -62,16 +67,22 @@ def serv_create_workstep(request: Request,
 
 def serv_get_worksteps_by_receipt(request: Request,
                                   db_session: Session,
-                                  receipt_id: UUID):
+                                  receipt_id: UUID,
+                                  user: User):
     """
     service to request all worksteps of a receipt
 
     :param request: General request information
     :param db_session: Database session
     :param receipt_id: UUID of receipt
+    :param user: User information
     :return: API response model
     """
     try:
+        db_receipt: ReceiptDB = read_receipt(db_session=db_session, uuid=receipt_id)
+        if not db_receipt.id == user.id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='User is not owner of the receipt')
+
         db_worksteps: List[WorkstepDB] = read_worksteps_by_receipt(db_session=db_session, receipt_id=receipt_id)
 
         api_worksteps: List[WorkstepRead] = []
@@ -95,19 +106,26 @@ def serv_get_worksteps_by_receipt(request: Request,
 
 def serv_get_workstep_by_id(request: Request,
                             db_session: Session,
-                            uuid: UUID):
+                            uuid: UUID,
+                            user: User):
     """
     service to request workstep by uuid
 
     :param uuid: UUID of workstep
     :param request: General request information
     :param db_session: Database session
+    :param user: User information
     :return: API response model
     """
     try:
         db_workstep: WorkstepDB = read_workstep(db_session=db_session, uuid=uuid)
 
         tmp_workstep: WorkstepReadInDB = WorkstepReadInDB.model_validate(db_workstep)
+
+        db_receipt: ReceiptDB = read_receipt(db_session=db_session, uuid=tmp_workstep.receipt_id)
+        if not db_receipt.id == user.id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='User is not owner of the receipt')
+
         api_workstep: WorkstepRead = WorkstepRead(**tmp_workstep.dict())
 
         return WorkstepResponse(method=request.method,
@@ -122,7 +140,8 @@ def serv_get_workstep_by_id(request: Request,
 def serv_update_workstep(request: Request,
                          db_session: Session,
                          uuid: UUID,
-                         body: WorkstepUpdate):
+                         body: WorkstepUpdate,
+                         user: User):
     """
     service to update workstep
 
@@ -130,6 +149,7 @@ def serv_update_workstep(request: Request,
     :param uuid: UUID of workstep
     :param request: General request information
     :param db_session: Database session
+    :param user: User information
     :return: API response model
     """
     try:
@@ -138,6 +158,10 @@ def serv_update_workstep(request: Request,
                                          'order_number'})
 
         db_workstep: WorkstepDB = read_workstep(db_session=db_session, uuid=uuid)
+
+        db_receipt: ReceiptDB = read_receipt(db_session=db_session, uuid=db_workstep.receipt_id)
+        if not db_receipt.id == user.id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='User is not owner of the receipt')
 
         if patch_items:
             for key, value in patch_items.items():
@@ -159,18 +183,24 @@ def serv_update_workstep(request: Request,
 
 def serv_delete_workstep(request: Request,
                          db_session: Session,
-                         uuid: UUID):
+                         uuid: UUID,
+                         user: User):
     """
     service to remove a workstep
 
     :param uuid: UUID of workstep
     :param request: General request information
     :param db_session: Database session
+    :param user: User information
     :return: API response model
     """
     try:
         db_workstep: WorkstepDB = read_workstep(db_session=db_session, uuid=uuid)
         receipt_id: UUID = db_workstep.receipt_id
+
+        db_receipt: ReceiptDB = read_receipt(db_session=db_session, uuid=receipt_id)
+        if not db_receipt.id == user.id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='User is not owner of the receipt')
 
         delete_workstep(db_session=db_session, db_workstep=db_workstep)
 
