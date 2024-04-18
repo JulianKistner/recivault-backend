@@ -15,8 +15,8 @@ from src.api.router.system import router as system_router
 from src.api.router.receipts import router as receipts_router
 from src.api.router.ingredients import router as ingredients_router
 from src.api.router.worksteps import router as worksteps_router
+from src.api.router.tags import router as tag_router
 
-from src.database.models.receipts import ReceiptDB
 
 app = FastAPI(
     title=settings.FA_APP_NAME,
@@ -46,6 +46,7 @@ app.include_router(system_router)
 app.include_router(receipts_router)
 app.include_router(ingredients_router)
 app.include_router(worksteps_router)
+app.include_router(tag_router)
 
 
 def init_app():
