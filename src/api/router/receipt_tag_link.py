@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, Body, Path
+from fastapi import APIRouter, Depends, status, Path
 from sqlalchemy.orm import Session
 from uuid import UUID
 from starlette.responses import JSONResponse, Response
