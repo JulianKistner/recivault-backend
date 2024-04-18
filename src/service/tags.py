@@ -1,4 +1,5 @@
 import uuid
+import re
 
 from fastapi import status
 from sqlalchemy.orm import Session
@@ -23,6 +24,13 @@ def serv_create_tag(request: Request, db_session: Session, body: TagCreate) -> T
     :return: API response model
     """
     try:
+        regex = r'^[a-zA-Z]+$'
+
+        if not re.match(regex, body.tag):
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Unallowed symbols in tag')
+
+        body.tag = body.tag.upper()
+
         db_tag: TagDB = TagDB(**body.dict())
         db_tag.id = uuid.uuid4()
 
