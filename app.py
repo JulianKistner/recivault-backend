@@ -8,7 +8,6 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 import uvicorn
-from uuid import uuid4
 
 from src import settings
 from src.api.router.system import router as system_router
