@@ -10,6 +10,8 @@ from starlette.requests import Request
 from uuid import UUID
 from typing import List
 from starlette.exceptions import HTTPException
+
+from src.api.models.auth import User
 from src.api.models.ingredients import (IngredientCreate,
                                         IngredientUpdate,
                                         IngredientResponse,
@@ -24,17 +26,21 @@ from src.crud.ingredients import (save_ingredient,
 from src.crud.receipts import read_receipt
 
 
-def serv_create_ingredient(request: Request, db_session: Session, body: IngredientCreate) -> IngredientResponse:
+def serv_create_ingredient(request: Request, db_session: Session, body: IngredientCreate, user: User) -> IngredientResponse:
     """
     service to create ingredient
 
     :param body: API post model
     :param request: General request information
     :param db_session: Database session
+    :param user: User information
     :return: API response model
     """
     try:
-        db_receipt: ReceiptDB = read_receipt(db_session=db_session, uuid=body.receipt_id)
+        db_receipt: ReceiptDB = read_receipt(db_session=db_session, uuid=body.receipt_id, user_id=user.id)
+
+        if not db_receipt.id == user.id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='User is not owner of the receipt')
 
         db_ingredient: IngredientDB = IngredientDB(**body.dict(exclude={'receipt_id'}))
         db_ingredient.receipt = db_receipt
@@ -54,19 +60,25 @@ def serv_create_ingredient(request: Request, db_session: Session, body: Ingredie
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-def serv_get_ingredient(request: Request, db_session: Session, uuid: UUID):
+def serv_get_ingredient(request: Request, db_session: Session, uuid: UUID, user: User):
     """
     service to request an ingredient by id
 
     :param uuid: UUID of ingredient
     :param request: General request information
     :param db_session: Database session
+    :param user: User information
     :return: API response model
     """
     try:
         db_ingredient: IngredientDB = read_ingredient(db_session=db_session, uuid=uuid)
 
         tmp_ingredient: IngredientReadInDB = IngredientReadInDB.model_validate(db_ingredient)
+
+        db_receipt: ReceiptDB = read_receipt(db_session=db_session, uuid=tmp_ingredient.receipt_id, user_id=user.id)
+        if not db_receipt.id == user.id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='User is not owner of the receipt')
+
         api_ingredient: IngredientRead = IngredientRead(**tmp_ingredient.dict())
 
         return IngredientResponse(method=request.method,
@@ -78,16 +90,21 @@ def serv_get_ingredient(request: Request, db_session: Session, uuid: UUID):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-def serv_get_ingredients_by_receipt(request: Request, db_session: Session, receipt_id: UUID):
+def serv_get_ingredients_by_receipt(request: Request, db_session: Session, receipt_id: UUID, user: User):
     """
     service to request ingredients of receipt
 
     :param receipt_id: UUID of receipt
     :param request: General request information
     :param db_session: Database session
+    :param user: User information
     :return: API response model
     """
     try:
+        db_receipt: ReceiptDB = read_receipt(db_session=db_session, uuid=receipt_id, user_id=user.id)
+        if not db_receipt.id == user.id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='User is not owner of the receipt')
+
         db_ingredients: List[IngredientDB] = read_ingredients_by_receipt(db_session=db_session, receipt_id=receipt_id)
 
         api_ingredients: List[IngredientRead] = []
@@ -107,7 +124,7 @@ def serv_get_ingredients_by_receipt(request: Request, db_session: Session, recei
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-def serv_update_ingredient(request: Request, db_session: Session, uuid: UUID, body: IngredientUpdate):
+def serv_update_ingredient(request: Request, db_session: Session, uuid: UUID, body: IngredientUpdate, user: User):
     """
     service to update ingredient
 
@@ -115,6 +132,7 @@ def serv_update_ingredient(request: Request, db_session: Session, uuid: UUID, bo
     :param uuid: UUID of ingredient
     :param request: General request information
     :param db_session: Database session
+    :param user: User information
     :return: API response model
     """
     try:
@@ -122,6 +140,10 @@ def serv_update_ingredient(request: Request, db_session: Session, uuid: UUID, bo
                                 exclude={'receipt_id'})
 
         db_ingredient: IngredientDB = read_ingredient(db_session=db_session, uuid=uuid)
+
+        db_receipt: ReceiptDB = read_receipt(db_session=db_session, uuid=db_ingredient.receipt_id, user_id=user.id)
+        if not db_receipt.id == user.id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='User is not owner of the receipt')
 
         if patch_items:
             for key, value in patch_items.items():
@@ -141,17 +163,22 @@ def serv_update_ingredient(request: Request, db_session: Session, uuid: UUID, bo
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-def serv_delete_ingredient(request: Request, db_session: Session, uuid: UUID):
+def serv_delete_ingredient(request: Request, db_session: Session, uuid: UUID, user: User):
     """
     service to remove ingredient
 
     :param uuid: UUID of ingredient
     :param request: General request information
     :param db_session: Database session
+    :param user: User information
     :return: API response model
     """
     try:
         db_ingredient: IngredientDB = read_ingredient(db_session=db_session, uuid=uuid)
+
+        db_receipt: ReceiptDB = read_receipt(db_session=db_session, uuid=db_ingredient.receipt_id, user_id=user.id)
+        if not db_receipt.id == user.id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='User is not owner of the receipt')
 
         delete_ingredient(db_session=db_session, db_ingredient=db_ingredient)
 
