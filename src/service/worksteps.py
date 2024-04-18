@@ -42,7 +42,7 @@ def serv_create_workstep(request: Request,
         new_order_number: int = len(db_worksteps) + 1
 
         db_receipt: ReceiptDB = read_receipt(db_session=db_session, uuid=body.receipt_id)
-        if not db_receipt.id == user.id:
+        if not db_receipt.user_id == user.id:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='User is not owner of the receipt')
 
         db_workstep: WorkstepDB = WorkstepDB(**body.dict(exclude={'receipt_id',
@@ -80,7 +80,7 @@ def serv_get_worksteps_by_receipt(request: Request,
     """
     try:
         db_receipt: ReceiptDB = read_receipt(db_session=db_session, uuid=receipt_id)
-        if not db_receipt.id == user.id:
+        if not db_receipt.user_id == user.id:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='User is not owner of the receipt')
 
         db_worksteps: List[WorkstepDB] = read_worksteps_by_receipt(db_session=db_session, receipt_id=receipt_id)
@@ -123,7 +123,7 @@ def serv_get_workstep_by_id(request: Request,
         tmp_workstep: WorkstepReadInDB = WorkstepReadInDB.model_validate(db_workstep)
 
         db_receipt: ReceiptDB = read_receipt(db_session=db_session, uuid=tmp_workstep.receipt_id)
-        if not db_receipt.id == user.id:
+        if not db_receipt.user_id == user.id:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='User is not owner of the receipt')
 
         api_workstep: WorkstepRead = WorkstepRead(**tmp_workstep.dict())
@@ -160,7 +160,7 @@ def serv_update_workstep(request: Request,
         db_workstep: WorkstepDB = read_workstep(db_session=db_session, uuid=uuid)
 
         db_receipt: ReceiptDB = read_receipt(db_session=db_session, uuid=db_workstep.receipt_id)
-        if not db_receipt.id == user.id:
+        if not db_receipt.user_id == user.id:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='User is not owner of the receipt')
 
         if patch_items:
@@ -199,7 +199,7 @@ def serv_delete_workstep(request: Request,
         receipt_id: UUID = db_workstep.receipt_id
 
         db_receipt: ReceiptDB = read_receipt(db_session=db_session, uuid=receipt_id)
-        if not db_receipt.id == user.id:
+        if not db_receipt.user_id == user.id:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='User is not owner of the receipt')
 
         delete_workstep(db_session=db_session, db_workstep=db_workstep)
