@@ -38,7 +38,7 @@ def serv_create_ingredient(request: Request, db_session: Session, body: Ingredie
     """
     try:
         db_receipt: ReceiptDB = read_receipt(db_session=db_session, uuid=body.receipt_id)
-        if not db_receipt.id == user.id:
+        if not db_receipt.user_id == user.id:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='User is not owner of the receipt')
 
         db_ingredient: IngredientDB = IngredientDB(**body.dict(exclude={'receipt_id'}))
@@ -75,7 +75,7 @@ def serv_get_ingredient(request: Request, db_session: Session, uuid: UUID, user:
         tmp_ingredient: IngredientReadInDB = IngredientReadInDB.model_validate(db_ingredient)
 
         db_receipt: ReceiptDB = read_receipt(db_session=db_session, uuid=tmp_ingredient.receipt_id)
-        if not db_receipt.id == user.id:
+        if not db_receipt.user_id == user.id:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='User is not owner of the receipt')
 
         api_ingredient: IngredientRead = IngredientRead(**tmp_ingredient.dict())
@@ -101,7 +101,7 @@ def serv_get_ingredients_by_receipt(request: Request, db_session: Session, recei
     """
     try:
         db_receipt: ReceiptDB = read_receipt(db_session=db_session, uuid=receipt_id)
-        if not db_receipt.id == user.id:
+        if not db_receipt.user_id == user.id:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='User is not owner of the receipt')
 
         db_ingredients: List[IngredientDB] = read_ingredients_by_receipt(db_session=db_session, receipt_id=receipt_id)
@@ -141,7 +141,7 @@ def serv_update_ingredient(request: Request, db_session: Session, uuid: UUID, bo
         db_ingredient: IngredientDB = read_ingredient(db_session=db_session, uuid=uuid)
 
         db_receipt: ReceiptDB = read_receipt(db_session=db_session, uuid=db_ingredient.receipt_id)
-        if not db_receipt.id == user.id:
+        if not db_receipt.user_id == user.id:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='User is not owner of the receipt')
 
         if patch_items:
@@ -176,7 +176,7 @@ def serv_delete_ingredient(request: Request, db_session: Session, uuid: UUID, us
         db_ingredient: IngredientDB = read_ingredient(db_session=db_session, uuid=uuid)
 
         db_receipt: ReceiptDB = read_receipt(db_session=db_session, uuid=db_ingredient.receipt_id)
-        if not db_receipt.id == user.id:
+        if not db_receipt.user_id == user.id:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='User is not owner of the receipt')
 
         delete_ingredient(db_session=db_session, db_ingredient=db_ingredient)
