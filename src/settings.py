@@ -21,7 +21,7 @@ MAINTAINER_EMAIL: str = "jul.kistner.21@lehre.mosbach.dhbw.de"
 FA_HOST: str = "localhost"
 FA_PORT: int = 5000
 FA_APP_NAME: str = "recivault-backend"
-FA_APP_VERSION: str = "1.0.2"
+FA_APP_VERSION: str = "2.0.0"
 FA_APP_UUID: str = str(uuid.uuid4())
 
 DATABASE_URI = load_env_with_default(

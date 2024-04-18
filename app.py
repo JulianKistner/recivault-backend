@@ -15,6 +15,7 @@ from src.api.router.receipts import router as receipts_router
 from src.api.router.ingredients import router as ingredients_router
 from src.api.router.worksteps import router as worksteps_router
 from src.api.router.tags import router as tag_router
+from src.api.router.receipt_tag_link import router as receipt_tag_link_router
 
 
 app = FastAPI(
@@ -46,6 +47,7 @@ app.include_router(receipts_router)
 app.include_router(ingredients_router)
 app.include_router(worksteps_router)
 app.include_router(tag_router)
+app.include_router(receipt_tag_link_router)
 
 
 def init_app():
