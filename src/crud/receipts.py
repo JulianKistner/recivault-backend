@@ -44,19 +44,17 @@ def read_receipts(db_session: Session, user_id: UUID) -> List[ReceiptDB]:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='Database Error')
 
 
-def read_receipt(db_session: Session, uuid: UUID, user_id: UUID) -> ReceiptDB:
+def read_receipt(db_session: Session, uuid: UUID) -> ReceiptDB:
     """
     read a receipt by id
 
     :param db_session: Database session
     :param uuid: UUID of receipt
-    :param user_id: UUID of user
     :return: Database object
     """
     try:
         return db_session.execute(select(ReceiptDB)
-                                  .where(ReceiptDB.id == uuid,
-                                         ReceiptDB.user_id == user_id)).scalars().one()
+                                  .where(ReceiptDB.id == uuid)).scalars().one()
 
     except NoResultFound:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'Receipt with id "{uuid}" not found')

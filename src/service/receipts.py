@@ -92,7 +92,9 @@ def serv_get_receipt(request: Request, db_session: Session, uuid: UUID, user: Us
     :return: API response model
     """
     try:
-        db_receipt: ReceiptDB = read_receipt(db_session=db_session, uuid=uuid, user_id=user.id)
+        db_receipt: ReceiptDB = read_receipt(db_session=db_session, uuid=uuid)
+        if not db_receipt.id == user.id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='User is not owner of the receipt')
 
         tmp_receipt: ReceiptReadInDB = ReceiptReadInDB.from_orm(db_receipt)
         api_receipt: ReceiptRead = ReceiptRead(**tmp_receipt.dict())
@@ -120,7 +122,9 @@ def serv_update_receipt(request: Request, db_session: Session, uuid: UUID, body:
     try:
         patch_items = body.dict(exclude_unset=True)
 
-        db_receipt: ReceiptDB = read_receipt(db_session=db_session, uuid=uuid, user_id=user.id)
+        db_receipt: ReceiptDB = read_receipt(db_session=db_session, uuid=uuid)
+        if not db_receipt.id == user.id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='User is not owner of the receipt')
 
         if patch_items:
             for key, value in patch_items.items():
@@ -151,7 +155,10 @@ def serv_delete_receipt(request: Request, db_session: Session, uuid: UUID, user:
     :return: API response model
     """
     try:
-        db_receipt: ReceiptDB = read_receipt(db_session=db_session, uuid=uuid, user_id=user.id)
+        db_receipt: ReceiptDB = read_receipt(db_session=db_session, uuid=uuid)
+        if not db_receipt.id == user.id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='User is not owner of the receipt')
+
         delete_receipt(db_session=db_session, db_receipt=db_receipt)
 
         return Response(status_code=status.HTTP_204_NO_CONTENT)
