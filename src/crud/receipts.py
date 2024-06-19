@@ -53,8 +53,8 @@ def read_receipt(db_session: Session, uuid: UUID) -> ReceiptDB:
     :return: Database object
     """
     try:
-        return db_session.execute(select(ReceiptDB)
-                                  .where(ReceiptDB.id == uuid)).scalars().one()
+        return (db_session.execute(select(ReceiptDB)
+                                   .where(ReceiptDB.id == uuid)).scalars().one())
 
     except NoResultFound:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'Receipt with id "{uuid}" not found')
