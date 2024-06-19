@@ -9,6 +9,7 @@ psycopg2 = "*"
 jwt = "*"
 requests = "*"
 python-keycloak = "*"
+fpdf = "*"
 
 [requires]
 python_version = "3.12"

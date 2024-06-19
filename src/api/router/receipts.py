@@ -17,6 +17,7 @@ from src.service.receipts import (
     serv_update_receipt,
     serv_get_receipts,
     serv_get_receipt,
+    serv_get_receipt_pdf
 )
 from src.authentication.auth import get_user_info
 
@@ -96,6 +97,21 @@ def endp_get_receipt(request: Request,
     :return: API response model
     """
     return serv_get_receipt(request=request, db_session=db_session, uuid=uuid, user=user)
+
+
+@router.get(
+    "/receipts/{uuid}/pdf",
+    tags=["receipts"],
+    description="Endpoint to get a receipt pdf",
+    status_code=status.HTTP_200_OK,
+    deprecated=False
+)
+def endp_get_receipt_pdf(request: Request,
+                         db_session: Session = Depends(get_db),
+                         uuid: UUID = Path(alias='uuid',
+                                           title='UUID of receipt'),
+                         user: User = Depends(get_user_info)):
+    return serv_get_receipt_pdf(request=request, db_session=db_session, uuid=uuid, user=user)
 
 
 @router.patch(
